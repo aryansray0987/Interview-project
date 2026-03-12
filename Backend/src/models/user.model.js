@@ -1,4 +1,4 @@
-const mongoose = require("mongoose")
+import mongoose from 'mongoose'
 
 
 const userSchema = new mongoose.Schema({
@@ -16,10 +16,10 @@ const userSchema = new mongoose.Schema({
 
     password: {
         type: String,
-        required: true
+        required: true // unique : true .. is not required as multiple user can have same password
     }
 })
 
 const userModel = mongoose.model("users", userSchema)
 
-module.exports = userModel
+export {userModel}

@@ -1,19 +1,20 @@
-const express = require("express")
-const cookieParser = require("cookie-parser")
-const cors = require("cors")
+import express from 'express'
+import cookieParser from 'cookie-parser'
+import cors from 'cors'
 
 const app = express()
 
-app.use(express.json())
-app.use(cookieParser())
+app.use(express.json())// ti allow the data in req.body in object format 
+app.use(cookieParser())// to store the jwt tokens 
 app.use(cors({
     origin: "http://localhost:5173",
-    credentials: true
+    credentials: true //I am ready to receive your token!"
+    // we cannot do origin: *  and credentials :true
 }))
 
 /* require all the routes here */
-const authRouter = require("./routes/auth.routes")
-const interviewRouter = require("./routes/interview.routes")
+import {authRouter} from './routes/auth.routes.js'
+import {interviewRouter} from './routes/interview.routes.js'
 
 
 /* using all the routes here */
@@ -22,4 +23,4 @@ app.use("/api/interview", interviewRouter)
 
 
 
-module.exports = app
+export { app };

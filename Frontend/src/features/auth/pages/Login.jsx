@@ -20,13 +20,11 @@ const Login = () => {
     if(loading){
         return (<main><h1>Loading.......</h1></main>)
     }
-
-
     return (
         <main>
             <div className="form-container">
                 <h1>Login</h1>
-                <form onSubmit={handleSubmit}>
+                <form onSubmit={handleSubmit}>// we can also use the button but in form it is consider best practice..also enter button will work.
                     <div className="input-group">
                         <label htmlFor="email">Email</label>
                         <input

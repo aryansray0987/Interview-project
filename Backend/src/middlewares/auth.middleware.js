@@ -1,43 +1,36 @@
-const jwt = require("jsonwebtoken")
-const tokenBlacklistModel = require("../models/blacklist.model")
-
-
+import jwt from "jsonwebtoken";
+const tokenBlacklistModel = require("../models/blacklist.model");
 
 async function authUser(req, res, next) {
+  const token = req.cookies.token;
 
-    const token = req.cookies.token
+  if (!token) {
+    return res.status(401).json({
+      message: "Token not provided.",
+    });
+  }
 
-    if (!token) {
-        return res.status(401).json({
-            message: "Token not provided."
-        })
-    }
+  const isTokenBlacklisted = await tokenBlacklistModel.findOne({
+    token,
+  });
 
-    const isTokenBlacklisted = await tokenBlacklistModel.findOne({
-        token
-    })
+  if (isTokenBlacklisted) {
+    return res.status(401).json({
+      message: "token is invalid",
+    });
+  }
 
-    if (isTokenBlacklisted) {
-        return res.status(401).json({
-            message: "token is invalid"
-        })
-    }
+  try {
+    const decoded = jwt.verify(token, process.env.JWT_SECRET); // It returns the payload if the user exist..else throw the error so use try and catch..
 
-    try {
-        const decoded = jwt.verify(token, process.env.JWT_SECRET)
+    req.user = decoded;
 
-        req.user = decoded
-
-        next()
-
-    } catch (err) {
-
-        return res.status(401).json({
-            message: "Invalid token."
-        })
-    }
-
+    next();
+  } catch (err) {
+    return res.status(401).json({
+      message: "Invalid token.",
+    });
+  }
 }
 
-
-module.exports = { authUser }
+export { authUser };
