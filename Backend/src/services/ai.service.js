@@ -1,12 +1,12 @@
-const { GoogleGenAI } = require("@google/genai")
-const { z } = require("zod")
-const { zodToJsonSchema } = require("zod-to-json-schema")
-const puppeteer = require("puppeteer")
+import {GoogleGenAI} from '@google/genai'
+import {z} from 'zod'
+import { zodToJsonSchema } from 'zod-to-json-schema';
+import puppeteer from 'puppeteer'
+
 
 const ai = new GoogleGenAI({
     apiKey: process.env.GOOGLE_GENAI_API_KEY
 })
-
 
 const interviewReportSchema = z.object({
     matchScore: z.number().describe("A score between 0 and 100 indicating how well the candidate's profile matches the job describe"),
@@ -53,8 +53,8 @@ async function generateInterviewReport({ resume, selfDescription, jobDescription
     return JSON.parse(response.text)
 
 
-}
 
+}
 
 
 async function generatePdfFromHtml(htmlContent) {
@@ -113,4 +113,4 @@ async function generateResumePdf({ resume, selfDescription, jobDescription }) {
 
 }
 
-module.exports = { generateInterviewReport, generateResumePdf }
+export { generateInterviewReport, generateResumePdf }
