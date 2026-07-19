@@ -1,4 +1,4 @@
-import React,{useState} from 'react'
+import React, { useState } from 'react'
 import { useNavigate, Link } from 'react-router'
 import "../auth.form.scss"
 import { useAuth } from '../hooks/useAuth'
@@ -8,38 +8,50 @@ const Login = () => {
     const { loading, handleLogin } = useAuth()
     const navigate = useNavigate()
 
-    const [ email, setEmail ] = useState("")
-    const [ password, setPassword ] = useState("")
+    const [email, setEmail] = useState("")
+    const [password, setPassword] = useState("")
 
     const handleSubmit = async (e) => {
         e.preventDefault()
-        await handleLogin({email,password})
-        navigate('/')
+        const success = await handleLogin({ email, password })
+        if (success) {
+            navigate('/')
+        }
     }
 
-    if(loading){
-        return (<main><h1>Loading.......</h1></main>)
+    if (loading) {
+        return (
+            <main className='auth-main'>
+                <div className='loading-spinner' />
+            </main>
+        )
     }
+    
     return (
-        <main>
+        <main className='auth-main'>
             <div className="form-container">
-                <h1>Login</h1>
-                <form onSubmit={handleSubmit}>// we can also use the button but in form it is consider best practice..also enter button will work.
+                <h1>Welcome Back</h1>
+                <p className="auth-subtitle">Login to continue to PrepForge</p>
+
+                <form onSubmit={handleSubmit}>
                     <div className="input-group">
                         <label htmlFor="email">Email</label>
                         <input
                             onChange={(e) => { setEmail(e.target.value) }}
-                            type="email" id="email" name='email' placeholder='Enter email address' />
+                            type="email" id="email" name='email' placeholder='Enter email address' required />
                     </div>
                     <div className="input-group">
                         <label htmlFor="password">Password</label>
                         <input
                             onChange={(e) => { setPassword(e.target.value) }}
-                            type="password" id="password" name='password' placeholder='Enter password' />
+                            type="password" id="password" name='password' placeholder='Enter password' required />
                     </div>
-                    <button className='button primary-button' >Login</button>
+                    <button className='button primary-button' style={{ marginTop: '0.5rem' }}>Login</button>
                 </form>
-                <p>Don't have an account? <Link to={"/register"} >Register</Link> </p>
+                
+                <div className="form-footer">
+                    <p>Don't have an account? <Link to={"/register"} >Register</Link></p>
+                </div>
             </div>
         </main>
     )

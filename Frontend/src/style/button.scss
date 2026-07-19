@@ -1,20 +1,27 @@
-.button{
-
+.button {
     border: none;
     outline: none;
     padding-inline: 1.5rem;
     padding-block: 0.75rem;
-    border-radius: 1rem;
+    border-radius: 0.75rem;
     cursor: pointer;
+    font-family: 'Inter', system-ui, sans-serif;
+    font-weight: 600;
+    font-size: 0.875rem;
+    transition: all 0.25s ease;
 
-    transition: all 0.3s ease-in-out;
-
-    &.primary-button{
-        background-color: #e1034d;
+    &.primary-button {
+        background: linear-gradient(135deg, var(--accent), var(--accent-alt, #ff6b9d));
         color: white;
+        box-shadow: 0 2px 12px rgba(255, 45, 120, 0.25);
+
+        &:hover {
+            box-shadow: 0 4px 20px rgba(255, 45, 120, 0.35);
+            transform: translateY(-1px);
+        }
     }
 
-    &:active{
-        transform: scale(0.9);
+    &:active {
+        transform: scale(0.97);
     }
 }

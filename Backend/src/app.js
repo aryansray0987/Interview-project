@@ -4,13 +4,23 @@ import cors from 'cors'
 
 const app = express()
 
-app.use(express.json())// ti allow the data in req.body in object format 
-app.use(cookieParser())// to store the jwt tokens 
-app.use(cors({
-    origin: "http://localhost:5173",
-    credentials: true //I am ready to receive your token!"
-    // we cannot do origin: *  and credentials :true
-}))
+app.use(express.json())// it allows the data in req.body in object format
+app.use(cookieParser())// to store the jwt tokens in cookies
+
+// CORS configuration for development - allows any localhost port
+const corsOptions = {
+    origin: function (origin, callback) {
+        // Allow localhost with any port during development
+        if (!origin || origin.startsWith('http://localhost:')) {
+            callback(null, true)
+        } else {
+            callback(new Error('Not allowed by CORS'))
+        }
+    },
+    credentials: true  // allows credentials to be sent with cross-site requests
+}
+
+app.use(cors(corsOptions))
 
 /* require all the routes here */
 import {authRouter} from './routes/auth.routes.js'

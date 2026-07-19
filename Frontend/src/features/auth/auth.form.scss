@@ -1,44 +1,102 @@
-main{
+// ── Auth Forms (theme-aware) ──────────────────────────────────────────────────
+
+main.auth-main {
     min-height: 100vh;
     width: 100%;
-
     display: flex;
     justify-content: center;
     align-items: center;
+    background-color: var(--bg-page);
+    padding: 1.5rem;
 
-
-    .form-container{
-        min-width: 350px;
-
+    .form-container {
+        min-width: 380px;
+        max-width: 420px;
+        width: 100%;
         display: flex;
         flex-direction: column;
-        gap: 1rem;
-    }
+        gap: 1.25rem;
+        background: var(--bg-card);
+        border: 1px solid var(--border-color);
+        border-radius: 1rem;
+        padding: 2.5rem;
+        box-shadow: 0 8px 32px var(--shadow-color);
 
-    form{
-        display: flex;
-        flex-direction: column;
-        gap: 0.75rem;
-    }
+        h1 {
+            font-size: 1.75rem;
+            font-weight: 700;
+            color: var(--text-primary);
+            text-align: center;
+            margin-bottom: 0.25rem;
+        }
 
-    .input-group{
-        display: flex;
-        flex-direction: column;
-
-        gap: 0.5rem;
-
-
-        input{
-            border: none;
-            outline: none;
-            padding-inline: 1rem;
-            padding-block: 0.75rem;
-            border-radius: 0.75rem;
+        .auth-subtitle {
+            text-align: center;
+            color: var(--text-muted);
+            font-size: 0.9rem;
+            margin-top: -0.75rem;
         }
     }
 
-    a{
-        color: #e1034d;
+    form {
+        display: flex;
+        flex-direction: column;
+        gap: 0.85rem;
+    }
+
+    .input-group {
+        display: flex;
+        flex-direction: column;
+        gap: 0.4rem;
+
+        label {
+            font-size: 0.85rem;
+            font-weight: 500;
+            color: var(--text-primary);
+        }
+
+        input {
+            border: 1px solid var(--border-color);
+            outline: none;
+            padding: 0.75rem 1rem;
+            border-radius: 0.6rem;
+            background-color: var(--bg-input);
+            color: var(--text-primary);
+            font-family: 'Inter', system-ui, sans-serif;
+            font-size: 0.9rem;
+            transition: border-color 0.2s, box-shadow 0.2s;
+
+            &::placeholder {
+                color: var(--text-muted);
+            }
+
+            &:focus {
+                border-color: var(--accent);
+                box-shadow: 0 0 0 2px rgba(255, 45, 120, 0.12);
+            }
+        }
+    }
+
+    .form-footer {
+        text-align: center;
+        font-size: 0.85rem;
+        color: var(--text-muted);
+    }
+
+    a {
+        color: var(--accent);
         text-decoration: none;
+        font-weight: 500;
+        transition: opacity 0.2s;
+
+        &:hover {
+            opacity: 0.8;
+        }
+    }
+
+    p {
+        text-align: center;
+        font-size: 0.85rem;
+        color: var(--text-muted);
     }
 }

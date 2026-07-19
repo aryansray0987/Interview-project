@@ -3,8 +3,9 @@ import { createRoot } from 'react-dom/client'
 import App from './App.jsx'
 import "./style.scss"
 
+// StrictMode is only for development, not used during production
 createRoot(document.getElementById('root')).render(
-  <StrictMode> // only for the development // no used during the production..
+  <StrictMode>
     <App />
   </StrictMode>,
 )

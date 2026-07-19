@@ -9,9 +9,17 @@ export const useAuth = () => {
   const handleLogin = async ({ email, password }) => {
     setLoading(true);
     try {
+      console.log('Attempting login with:', { email });
       const data = await login({ email, password });
-      setUser(data.user);
-    } catch (err) {
+      console.log('Login response:', data);
+      if (data && data.user) {
+        console.log('Setting user after login:', data.user);
+        setUser(data.user);
+      }
+      return true; // Indicate successful login
+    } catch (error) {
+      console.error('Login error:', error);
+      return false; // Indicate failed login
     } finally {
       setLoading(false);
     }
@@ -22,7 +30,10 @@ export const useAuth = () => {
     try {
       const data = await register({ username, email, password });
       setUser(data.user);
-    } catch (err) {
+      return true; // Indicate successful registration
+    } catch (error) {
+      console.error('Registration error:', error);
+      return false; // Indicate failed registration
     } finally {
       setLoading(false);
     }
@@ -31,9 +42,10 @@ export const useAuth = () => {
   const handleLogout = async () => {
     setLoading(true);
     try {
-      const data = await logout();
+      await logout();
       setUser(null);
-    } catch (err) {
+    } catch (error) {
+      console.error('Logout error:', error);
     } finally {
       setLoading(false);
     }
@@ -42,16 +54,24 @@ export const useAuth = () => {
   useEffect(() => {
     const getAndSetUser = async () => {
       try {
+        console.log('Attempting to fetch user data...');
         const data = await getMe();
-        setUser(data.user);
-      } catch (err) {
+        console.log('User data received:', data);
+        if (data && data.user) {
+          console.log('Setting user state:', data.user);
+          setUser(data.user);
+        } else {
+          console.log('No user data received');
+        }
+      } catch (error) {
+        console.error('Get user error:', error);
       } finally {
         setLoading(false);
       }
     };
 
     getAndSetUser();
-  }, []);
+  }, [setLoading, setUser]);
 
-  return { user, loading, handleRegister, handleLogin, handleLogout };
+  return { user, loading, handleRegister, handleLogin, handleLogout, setUser };
 };

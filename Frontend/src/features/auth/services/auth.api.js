@@ -1,7 +1,7 @@
 import axios from "axios";
 
 const api = axios.create({
-  baseURL: "http://localhost:3000",
+  baseURL: "http://localhost:4000",
   withCredentials: true, // to allow the axios to access the token in cookie... 
 });
 
@@ -37,7 +37,9 @@ export async function logout() {
     const response = await api.get("/api/auth/logout");
 
     return response.data;
-  } catch (err) {}
+  } catch (error) {
+    console.error('Logout error:', error);
+  }
 }
 
 export async function getMe() {

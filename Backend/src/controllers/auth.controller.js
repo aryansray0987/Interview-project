@@ -10,51 +10,62 @@ import { tokenBlacklistModel } from "../models/blacklist.model.js";
  */
 
 async function registerUserController(req, res) {
-  const { username, email, password } = req.body;
+  try {
+    const { username, email, password } = req.body;
 
-  if (!username || !email || !password) {
-    return res.status(400).json({
-      message: "Please provide username, email and password",
+    if (!username || !email || !password) {
+      return res.status(400).json({
+        message: "Please provide username, email and password",
+      });
+    }
+
+    const isUserAlreadyExists = await userModel.findOne({
+      $or: [{username}, {email}], //two conditions to validate the user
     });
-  }
 
-  const isUserAlreadyExists = await userModel.findOne({
-    $or: [{username}, {email}], //two conditions to validate the user
-  });
+    if (isUserAlreadyExists) { // if user not exist then  isUserAlreadyExists = null
+      return res.status(400).json({
+        message: "Account already exists with this email address or username",
+      });
+    }
 
-  if (isUserAlreadyExists) { // if user not exist then  isUserAlreadyExists = null
-    return res.status(400).json({
-      message: "Account already exists with this email address or username",
+    const hash = await bcrypt.hash(password, 10); // 2 ki power 10 rounds of cryptography ..
+
+    const user = await userModel.create({
+      username,
+      email,
+      password: hash,
     });
-  }
 
-  const hash = await bcrypt.hash(password, 10); // 2 ki power 10 rounds of cryptography ..
+    const token = jwt.sign(
+      { id: user._id, username: user.username },
+      process.env.JWT_SECRET,
+      { expiresIn: "1d" },
+    );
 
-  const user = await userModel.create({
-    username,
-    email,
-    password: hash,
-  });
-
-  const token = jwt.sign(
-    { id: user._id, username: user.username },
-    process.env.JWT_SECRET,
-    { expiresIn: "1d" },
-  );
-
+    const isProduction = process.env.NODE_ENV === "production";
+    
     res.cookie("token", token, {
-      httpOnly: true,  // Prevents frontend JavaScript from reading the cookie (protects against XSS)
-    secure: true,    // Only sends the cookie over HTTPS
-  });
+      httpOnly: true, // so that cookie is not accessible 
+      secure: isProduction,  // Only HTTPS in production, HTTP in development
+      sameSite: "lax",
+    });
 
-  res.status(201).json({
-    message: "User registered successfully",
-    user: {
-      id: user._id,
-      username: user.username,
-      email: user.email,
-    },
-  });
+    res.status(201).json({
+      message: "User registered successfully",
+      user: {
+        id: user._id,
+        username: user.username,
+        email: user.email,
+      },
+    });
+  } catch (error) {
+    console.error("Register error:", error);
+    res.status(500).json({
+      message: "Error during registration",
+      error: error.message,
+    });
+  }
 }
 
 /**
@@ -63,39 +74,54 @@ async function registerUserController(req, res) {
  * @access Public
  */
 async function loginUserController(req, res) {
-  const { email, password } = req.body;
+  try {
+    const { email, password } = req.body;
 
-  const user = await userModel.findOne({ email });
+    const user = await userModel.findOne({ email });
 
-  if (!user) {
-    return res.status(400).json({
-      message: "Invalid email or password",
+    if (!user) {
+      return res.status(400).json({
+        message: "Invalid email or password",
+      });
+    }
+
+    const isPasswordValid = await bcrypt.compare(password, user.password);// since the password is hashed so it cannot be reverse back ...it can only be compare
+
+    if (!isPasswordValid) {
+      return res.status(400).json({
+        message: "Invalid email or password",
+      });
+    }
+
+    const token = jwt.sign(
+      { id: user._id, username: user.username },
+      process.env.JWT_SECRET,
+      { expiresIn: "1d" },
+    );
+
+    const isProduction = process.env.NODE_ENV === "production";
+    
+    res.cookie("token", token, {
+      httpOnly: true,
+      secure: isProduction,  // Only HTTPS in production, HTTP in development
+      sameSite: "lax",
+    });
+    
+    res.status(200).json({
+      message: "User loggedIn successfully.",
+      user: {
+        id: user._id,
+        username: user.username,
+        email: user.email,
+      },
+    });
+  } catch (error) {
+    console.error("Login error:", error);
+    res.status(500).json({
+      message: "Error during login",
+      error: error.message,
     });
   }
-
-  const isPasswordValid = await bcrypt.compare(password, user.password);// since the password is hashed so it cannot be reverse back ...it can only be compare
-
-  if (!isPasswordValid) {
-    return res.status(400).json({
-      message: "Invalid email or password",
-    });
-  }
-
-  const token = jwt.sign(
-    { id: user._id, username: user.username },
-    process.env.JWT_SECRET,
-    { expiresIn: "1d" },
-  );
-
-  res.cookie("token", token);
-  res.status(200).json({
-    message: "User loggedIn successfully.",
-    user: {
-      id: user._id,
-      username: user.username,
-      email: user.email,
-    },
-  });
 }
 
 /**
@@ -104,17 +130,25 @@ async function loginUserController(req, res) {
  * @access public
  */
 async function logoutUserController(req, res) {
-  const token = req.cookies.token;
+  try {
+    const token = req.cookies.token;
 
-  if (token) {
-    await tokenBlacklistModel.create({ token });
+    if (token) {
+      await tokenBlacklistModel.create({ token });
+    }
+
+    res.clearCookie("token");
+
+    res.status(200).json({
+      message: "User logged out successfully",
+    });
+  } catch (error) {
+    console.error("Logout error:", error);
+    res.status(500).json({
+      message: "Error during logout",
+      error: error.message,
+    });
   }
-
-  res.clearCookie("token");
-
-  res.status(200).json({
-    message: "User logged out successfully",
-  });
 }
 
 /**
@@ -123,16 +157,24 @@ async function logoutUserController(req, res) {
  * @access private
  */
 async function getMeController(req, res) {
-  const user = await userModel.findById(req.user.id);
+  try {
+    const user = await userModel.findById(req.user.id);
 
-  res.status(200).json({
-    message: "User details fetched successfully",
-    user: {
-      id: user._id,
-      username: user.username,
-      email: user.email,
-    },
-  });
+    res.status(200).json({
+      message: "User details fetched successfully",
+      user: {
+        id: user._id,
+        username: user.username,
+        email: user.email,
+      },
+    });
+  } catch (error) {
+    console.error("Get me error:", error);
+    res.status(500).json({
+      message: "Error fetching user details",
+      error: error.message,
+    });
+  }
 }
 
 export {

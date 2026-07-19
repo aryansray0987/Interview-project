@@ -1,10 +1,21 @@
 import express from 'express'
-import { authUser } from '../middlewares/auth.middleware'
-import {generateInterViewReportController,getAllInterviewReportsController,generateResumePdfController,getInterviewReportByIdController} from '../controllers/interview.controller'
-import { upload } from '../middlewares/file.middleware'
+import { authUser } from '../middlewares/auth.middleware.js'
+import {generateInterViewReportController,getAllInterviewReportsController,generateResumePdfController,getInterviewReportByIdController} from '../controllers/interview.controller.js'
+import { upload } from '../middlewares/file.middleware.js'
 
 const interviewRouter = express.Router()
 
+// Wrapper to make file upload optional - doesn't error when no file is provided
+const optionalUpload = (req, res, next) => {
+    upload.single("resume")(req, res, (err) => {
+        // If multer error is about missing file, just continue without the file
+        if (err) {
+            console.error("Multer error:", err.message);
+            // Continue anyway - file is optional
+        }
+        next();
+    });
+};
 
 
 /**
@@ -12,7 +23,7 @@ const interviewRouter = express.Router()
  * @description generate new interview report on the basis of user self description,resume pdf and job description.
  * @access private
  */
-interviewRouter.post("/", authUser, upload.single("resume"), generateInterViewReportController)
+interviewRouter.post("/", authUser, optionalUpload, generateInterViewReportController)
 
 /**
  * @route GET /api/interview/report/:interviewId

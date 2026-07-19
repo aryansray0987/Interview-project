@@ -1,8 +1,53 @@
 @use "./style/button.scss";
 
+// ── Theme Variables ──────────────────────────────────────────────────────────
+// Dark theme: TRUE BLACK backgrounds
+:root,
+[data-theme="dark"] {
+    --bg-page:        #000000;
+    --bg-card:        #0a0a0a;
+    --bg-panel:       #111111;
+    --bg-input:       #141414;
+    --bg-navbar:      rgba(0, 0, 0, 0.85);
+    --border-color:   #1e1e1e;
+    --text-primary:   #e6edf3;
+    --text-muted:     #7d8590;
+    --accent:         #ff2d78;
+    --accent-alt:     #ff6b9d;
+    --info-bg:        #0d1520;
+    --info-border:    #1a2840;
+    --info-text:      #8ab4f8;
+    --info-icon:      #4a90e2;
+    --input-bg:       #0e0e0e;
+    --shadow-color:   rgba(0, 0, 0, 0.5);
+}
+
+// Light theme: clean white/gray palette
+[data-theme="light"] {
+    --bg-page:        #f5f5f7;
+    --bg-card:        #ffffff;
+    --bg-panel:       #f0f0f2;
+    --bg-input:       #f7f7f8;
+    --bg-navbar:      rgba(255, 255, 255, 0.85);
+    --border-color:   #e0e0e4;
+    --text-primary:   #1a1a1a;
+    --text-muted:     #6b6b6b;
+    --accent:         #e1034d;
+    --accent-alt:     #ff4d7f;
+    --info-bg:        #eef4ff;
+    --info-border:    #c4d9f8;
+    --info-text:      #2e6bc4;
+    --info-icon:      #3d7fd4;
+    --input-bg:       #ffffff;
+    --shadow-color:   rgba(0, 0, 0, 0.08);
+}
+
+// ── Global Reset ─────────────────────────────────────────────────────────────
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+
 * {
-    margin: 0%;
-    padding: 0%;
+    margin: 0;
+    padding: 0;
     box-sizing: border-box;
 }
 
@@ -10,11 +55,56 @@ html,
 body,
 #root {
     width: 100%;
-    background-color: #161616;
-    color: whitesmoke;
-    font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+    min-height: 100vh;
+    background-color: var(--bg-page);
+    color: var(--text-primary);
+    font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+    transition: background-color 0.3s ease, color 0.3s ease;
 }
 
-.highlight{
-    color: #d20d3b;
+.highlight {
+    color: var(--accent);
+}
+
+// ── Loading Screen ───────────────────────────────────────────────────────────
+.loading-screen {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+    gap: 1.5rem;
+
+    h1 {
+        font-size: 1.2rem;
+        font-weight: 500;
+        color: var(--text-muted);
+    }
+}
+
+.loading-spinner {
+    width: 40px;
+    height: 40px;
+    border: 3px solid var(--border-color);
+    border-top-color: var(--accent);
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}
+
+// ── Smooth transitions for theme switching ───────────────────────────────────
+.interview-card,
+.panel,
+.navbar,
+.q-card,
+.interview-layout,
+.dropzone,
+.info-box,
+.generate-btn,
+.form-container,
+.report-item {
+    transition: background-color 0.3s ease, border-color 0.3s ease, color 0.3s ease;
 }

@@ -1,2 +1,2 @@
-const dbName = 'AryanDatabase'
+const dbName = 'prepForge'
 export { dbName }
