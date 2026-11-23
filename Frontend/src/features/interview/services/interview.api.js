@@ -61,3 +61,14 @@ export const generateResumePdf = async ({ interviewReportId }) => {
 
     return response.data
 }
+
+/**
+ * @description Service to update the completion status of a specific task.
+ */
+export const updateTaskStatus = async (interviewId, dayIndex, taskIndex, isCompleted) => {
+    const response = await api.patch(`/api/interview/report/${interviewId}/plan/${dayIndex}/task/${taskIndex}`, {
+        isCompleted
+    })
+
+    return response.data
+}

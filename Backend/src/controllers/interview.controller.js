@@ -9,7 +9,11 @@ const pdfParse = async (buffer) => {
   const uint8Array = new Uint8Array(buffer.buffer, buffer.byteOffset, buffer.byteLength);
   const pdf = new PDFParse(uint8Array);
   await pdf.load();
-  const text = await pdf.getText();
+  
+  const parsedData = await pdf.getText();
+  // Ensure we are returning a plain string, as the newer pdf-parse might return an object containing the text
+  const text = typeof parsedData === 'string' ? parsedData : parsedData.text || "";
+  
   return { text };
 };
 
@@ -34,12 +38,18 @@ async function generateInterViewReportController(req, res) {
       jobDescription,
     });
 
+    const mappedPreparationPlan = interViewReportByAi.preparationPlan.map(day => ({
+      ...day,
+      tasks: day.tasks.map(taskStr => ({ text: taskStr, isCompleted: false }))
+    }));
+
     const interviewReport = await interviewReportModel.create({
       user: req.user.id,
       resume: resumeText,
       selfDescription,
       jobDescription,
       ...interViewReportByAi,
+      preparationPlan: mappedPreparationPlan,
     });
 
     res.status(201).json({
@@ -52,6 +62,43 @@ async function generateInterViewReportController(req, res) {
       message: "Failed to generate interview report",
       error: error.message || error.toString()
     });
+  }
+}
+
+/**
+ * @description Controller to update the completion status of a specific task in the preparation plan.
+ */
+async function updateTaskStatusController(req, res) {
+  try {
+    const { interviewId, dayIndex, taskIndex } = req.params;
+    const { isCompleted } = req.body;
+
+    const report = await interviewReportModel.findOne({
+      _id: interviewId,
+      user: req.user.id
+    });
+
+    if (!report) {
+      return res.status(404).json({ message: "Interview report not found" });
+    }
+
+    if (
+      report.preparationPlan[dayIndex] && 
+      report.preparationPlan[dayIndex].tasks[taskIndex]
+    ) {
+      report.preparationPlan[dayIndex].tasks[taskIndex].isCompleted = isCompleted;
+      await report.save();
+
+      res.status(200).json({
+        message: "Task status updated successfully",
+        report
+      });
+    } else {
+      res.status(400).json({ message: "Invalid day or task index" });
+    }
+  } catch (error) {
+    console.error("Error updating task status:", error);
+    res.status(500).json({ message: "Failed to update task status" });
   }
 }
 
@@ -131,4 +178,5 @@ export {
   getInterviewReportByIdController,
   getAllInterviewReportsController,
   generateResumePdfController,
+  updateTaskStatusController
 };

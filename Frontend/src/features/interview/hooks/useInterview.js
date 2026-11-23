@@ -79,6 +79,29 @@ export const useInterview = () => {
         }
     }, [setLoading])
 
+    const toggleTask = useCallback(async (interviewId, dayIndex, taskIndex, isCompleted) => {
+        // Optimistically update local state
+        setReport(prev => {
+            if (!prev) return prev;
+            const newPlan = [...prev.preparationPlan];
+            newPlan[dayIndex].tasks[taskIndex].isCompleted = isCompleted;
+            return { ...prev, preparationPlan: newPlan };
+        });
+
+        try {
+            await updateTaskStatus(interviewId, dayIndex, taskIndex, isCompleted);
+        } catch (error) {
+            console.log("Failed to update task status:", error);
+            // Revert on failure
+            setReport(prev => {
+                if (!prev) return prev;
+                const newPlan = [...prev.preparationPlan];
+                newPlan[dayIndex].tasks[taskIndex].isCompleted = !isCompleted;
+                return { ...prev, preparationPlan: newPlan };
+            });
+        }
+    }, [setReport]);
+
     useEffect(() => {
         if (interviewId) {
             getReportById(interviewId)
@@ -87,6 +110,6 @@ export const useInterview = () => {
         }
     }, [ interviewId, getReportById, getReports ])
 
-    return { loading, report, reports, generateReport, getReportById, getReports, getResumePdf }
+    return { loading, report, reports, generateReport, getReportById, getReports, getResumePdf, toggleTask }
 
 }

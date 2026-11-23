@@ -1,6 +1,12 @@
 import express from 'express'
 import { authUser } from '../middlewares/auth.middleware.js'
-import {generateInterViewReportController,getAllInterviewReportsController,generateResumePdfController,getInterviewReportByIdController} from '../controllers/interview.controller.js'
+import {
+    generateInterViewReportController,
+    getAllInterviewReportsController,
+    generateResumePdfController,
+    getInterviewReportByIdController,
+    updateTaskStatusController
+} from '../controllers/interview.controller.js'
 import { upload } from '../middlewares/file.middleware.js'
 
 const interviewRouter = express.Router()
@@ -32,6 +38,13 @@ interviewRouter.post("/", authUser, optionalUpload, generateInterViewReportContr
  */
 interviewRouter.get("/report/:interviewId", authUser, getInterviewReportByIdController)
 
+
+/**
+ * @route PATCH /api/interview/report/:interviewId/plan/:dayIndex/task/:taskIndex
+ * @description update completion status of a specific task.
+ * @access private
+ */
+interviewRouter.patch("/report/:interviewId/plan/:dayIndex/task/:taskIndex", authUser, updateTaskStatusController)
 
 /**
  * @route GET /api/interview/

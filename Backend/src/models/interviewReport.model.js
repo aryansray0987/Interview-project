@@ -68,8 +68,14 @@ const preparationPlanSchema = new mongoose.Schema({
   },
   tasks: [
     {
-      type: String,
-      required: [true, "Task is required"],
+      text: {
+        type: String,
+        required: [true, "Task text is required"],
+      },
+      isCompleted: {
+        type: Boolean,
+        default: false,
+      },
     },
   ],
 });
